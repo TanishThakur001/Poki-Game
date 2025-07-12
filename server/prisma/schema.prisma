@@ -1,0 +1,47 @@
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  password  String
+  name      String?  @default("anonymous")
+  role      String?  @default("user")
+  imageUrl  String? @default("https://i.sstatic.net/l60Hf.png")
+  cards     Card[]   // Cards owned by this user
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model MasterCard {
+  id        Int      @id @default(autoincrement())
+  cardId    String   @unique // Unique ID from API
+  name      String
+  imageUrl  String
+  type      String
+  hp        Int
+  attack    String
+  damage    Int
+  weakness  String
+  cards     Card[]   // List of owned copies from users (optional)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Card {
+  id           Int         @id @default(autoincrement())
+  userId       Int         // Foreign key to User
+  masterCardId Int         // Foreign key to MasterCard
+  user         User        @relation(fields: [userId], references: [id])
+  masterCard   MasterCard  @relation(fields: [masterCardId], references: [id])
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+}
+
